@@ -249,7 +249,13 @@ def default_url_fetcher(url):
         return open_data_url(url)
     elif UNICODE_SCHEME_RE.match(url):
         url = iri_to_uri(url)
-        response = urlopen(Request(url, headers=HTTP_HEADERS))
+        
+        import ssl
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        response = urlopen(Request(url, headers=HTTP_HEADERS), context=ctx)
         result = dict(redirected_url=response.geturl(),
                       mime_type=urllib_get_content_type(response),
                       encoding=urllib_get_charset(response),
